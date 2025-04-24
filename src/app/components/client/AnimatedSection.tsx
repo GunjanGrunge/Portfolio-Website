@@ -1,27 +1,40 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 
-type AnimatedSectionProps = {
-  children: ReactNode;
-  direction?: 'left' | 'right';
-  className?: string;
-};
+interface AnimatedSectionProps {
+  children: React.ReactNode;
+}
 
-export default function AnimatedSection({ 
-  children, 
-  direction = 'left',
-  className = ''
-}: AnimatedSectionProps) {
+export default function AnimatedSection({ children }: AnimatedSectionProps) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate__animated', 'animate__fadeIn');
+        }
+      },
+      {
+        threshold: 0.1,
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, x: direction === 'left' ? -20 : 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-      className={className}
-    >
+    <div ref={sectionRef} className="opacity-0">
       {children}
-    </motion.div>
+    </div>
   );
 }
