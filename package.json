@@ -2,7 +2,7 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://GunjanGrunge.github.io/resume",
+  "homepage": "https://GunjanGrunge.github.io/Portfolio-Website",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
