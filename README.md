@@ -1,3 +1,4 @@
+[![Deploy to GitHub Pages](https://github.com/GunjanGrunge/Portfolio-Website/actions/workflows/deploy.yml/badge.svg)](https://github.com/GunjanGrunge/Portfolio-Website/actions/workflows/deploy.yml)
 # Personal Portfolio Website
 
 My personal portfolio website built with Next.js, TailwindCSS, and Framer Motion.
