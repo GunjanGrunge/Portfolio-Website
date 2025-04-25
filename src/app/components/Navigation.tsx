@@ -39,7 +39,7 @@ export default function Navigation() {
             <Nav.Link href="#about" onClick={handleNavClick} className="px-3">About</Nav.Link>
             <Nav.Link href="#experience" onClick={handleNavClick} className="px-3">Experience</Nav.Link>
             <Nav.Link href="#education" onClick={handleNavClick} className="px-3">Education</Nav.Link>
-            <Nav.Link href="#projects" onClick={handleNavClick} className="px-3">Projects</Nav.Link>
+            <Nav.Link href="#projects" onClick={handleNavClick} className="px-3">Hobby Projects</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>

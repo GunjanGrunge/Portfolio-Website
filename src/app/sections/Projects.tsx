@@ -10,7 +10,7 @@ export default function Projects() {
     <section id="projects" className="py-5">
       <Container>
         <AnimatedSection>
-          <h2 className="text-center display-4 mb-5">Projects</h2>
+          <h2 className="text-center display-4 mb-5">Hobby Projects</h2>
           <Row className="justify-content-center">
             <Col xs={12} lg={10}>
               <Accordion className="project-accordion">
