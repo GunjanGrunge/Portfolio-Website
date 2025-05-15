@@ -17,25 +17,18 @@ interface DotPatternProps extends React.SVGProps<SVGSVGElement> {
   [key: string]: unknown;
 }
 
-export function DotPattern({
-  width = 16,
-  height = 16,
-  x = 0,
-  y = 0,
-  cx = 1,
-  cy = 1,
-  cr = 1,
-  className,
-  glow = false,
-  ...props
-}: DotPatternProps) {
+export function DotPattern() {
   return (
-    <div className="absolute inset-0 -z-10 h-full w-full bg-white">
+    <div className="absolute inset-0 -z-10 h-full w-full">
       <div
-        className="absolute h-full w-full"
+        className="absolute h-full w-full bg-blend-overlay"
         style={{
-          backgroundImage: `radial-gradient(#e5e7eb 1px, transparent 1px)`,
-          backgroundSize: '16px 16px',
+          backgroundImage: 'url("/images/halftone-bg.png")',
+          backgroundSize: '100% auto',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'repeat',
+          opacity: 0.2,
+          mixBlendMode: 'multiply'
         }}
       />
     </div>

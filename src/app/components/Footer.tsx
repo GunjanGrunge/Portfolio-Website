@@ -5,7 +5,7 @@ import { FaHeart } from 'react-icons/fa';
 
 export default function Footer() {
   return (
-    <footer className="bg-dark text-light py-4">
+    <footer className="bg-dark text-light py-4 fixed-footer">
       <Container className="text-center">
         <p className="mb-0">
           Made with <FaHeart className="text-danger mx-1" /> by Gunjan Sarkar
