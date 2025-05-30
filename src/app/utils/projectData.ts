@@ -4,7 +4,10 @@ export type Project = {
   category: 'AI/ML' | 'Web Development' | 'Cloud' | 'Full Stack';
   features: string[];
   technologies: string[];
-  githubUrl: string;
+  links: {
+    github: string;
+    demo?: string;
+  };
 };
 
 export const projects: Project[] = [
@@ -20,7 +23,10 @@ export const projects: Project[] = [
       'Real-time AWS resource information'
     ],
     technologies: ['Python', 'TypeScript', 'FastAPI', 'React', 'AWS Bedrock', 'OpenAI GPT-4'],
-    githubUrl: 'https://github.com/GunjanGrunge/CloudCopilot'
+    links: {
+      github: 'https://github.com/GunjanGrunge/CloudCopilot',
+      demo: 'https://cloud-copilot-demo.vercel.app'
+    }
   },
   {
     title: 'Chord Picker Pro',
@@ -34,7 +40,10 @@ export const projects: Project[] = [
       'Available as both web and desktop application'
     ],
     technologies: ['React', 'Electron', 'TypeScript', 'Tone.js', 'Tonal.js', 'Vite'],
-    githubUrl: 'https://github.com/GunjanGrunge/chordpickerpro'
+    links: {
+      github: 'https://github.com/GunjanGrunge/chordpickerpro',
+      demo: 'https://chord-picker-pro.vercel.app'
+    }
   },
   {
     title: 'AWS Backup UI',
@@ -48,7 +57,9 @@ export const projects: Project[] = [
       'Toast notifications for operations'
     ],
     technologies: ['React', 'AWS SDK', 'Bootstrap', 'JavaScript', 'CSS'],
-    githubUrl: 'https://github.com/GunjanGrunge/awsbackupUIReact'
+    links: {
+      github: 'https://github.com/GunjanGrunge/awsbackupUIReact'
+    }
   },
   {
     title: 'AI Twitter Bot',
@@ -62,6 +73,8 @@ export const projects: Project[] = [
       '70% similarity threshold for uniqueness'
     ],
     technologies: ['Node.js', 'OpenAI GPT-4', 'Twitter API v2', 'GitHub Actions', 'JavaScript'],
-    githubUrl: 'https://github.com/GunjanGrunge/animated-twitter-chainsaw'
+    links: {
+      github: 'https://github.com/GunjanGrunge/animated-twitter-chainsaw'
+    }
   }
 ];
