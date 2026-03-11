@@ -64,31 +64,7 @@ const CyberHero = () => {
         93
       </div>
 
-      {/* Logo top-left */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="absolute top-6 left-6 z-10"
-      >
-        <span className="font-mono text-2xl font-bold text-primary text-glow-lando">
-          [GG]
-        </span>
-      </motion.div>
-
-      {/* Position badge top-right */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
-        className="absolute top-6 right-6 z-10"
-      >
-        <div className="border border-border bg-secondary/50 px-3 py-1.5 font-mono text-[10px] tracking-[0.15em]">
-          <span className="text-muted-foreground">POSITION </span>
-          <span className="text-primary font-bold">#1</span>
-          <span className="text-muted-foreground"> / FULL STACK DEV</span>
-        </div>
-      </motion.div>
+      {/* Watermark numbers handled above */}
 
       {/* Main content */}
       <div className="relative z-10 text-center px-6 max-w-5xl">
