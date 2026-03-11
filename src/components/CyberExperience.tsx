@@ -101,15 +101,20 @@ const TimelineLine = () => {
 const ExperienceSection = () => {
   return (
     <section id="experience" className="py-24 relative">
+      {/* Watermark */}
+      <div className="absolute top-0 left-0 font-display text-[16rem] leading-none text-foreground/[0.02] pointer-events-none select-none">04</div>
       <div className="container mx-auto px-6">
         <ScrollReveal>
-          <div className="flex items-center gap-3 mb-16">
+          <div className="flex items-center gap-3 mb-4">
             <span className="font-mono text-primary text-sm">{">"}</span>
             <h2 className="font-display text-4xl sm:text-5xl text-foreground tracking-wide">
               EXPERIENCE
             </h2>
             <div className="flex-1 h-px bg-border ml-4" />
           </div>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground mb-16">
+            SECTOR_04 / CAREER
+          </p>
         </ScrollReveal>
 
         <div className="relative pl-10 md:pl-16 max-w-4xl">
