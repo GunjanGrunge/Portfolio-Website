@@ -28,15 +28,20 @@ const education = [
 const EducationSection = () => {
   return (
     <section id="education" className="py-24 relative">
+      {/* Watermark */}
+      <div className="absolute top-0 right-0 font-display text-[16rem] leading-none text-foreground/[0.02] pointer-events-none select-none">05</div>
       <div className="container mx-auto px-6">
         <ScrollReveal>
-          <div className="flex items-center gap-3 mb-16">
+          <div className="flex items-center gap-3 mb-4">
             <span className="font-mono text-primary text-sm">{">"}</span>
             <h2 className="font-display text-4xl sm:text-5xl text-foreground tracking-wide">
               EDUCATION
             </h2>
             <div className="flex-1 h-px bg-border ml-4" />
           </div>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground mb-16">
+            SECTOR_05 / LEARNING
+          </p>
         </ScrollReveal>
 
         <div className="max-w-4xl space-y-6">

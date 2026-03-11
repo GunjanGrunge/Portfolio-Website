@@ -20,12 +20,17 @@ const ContactSection = () => {
 
   return (
     <section id="contact" className="py-32 relative">
+      {/* Watermark */}
+      <div className="absolute top-0 left-0 font-display text-[16rem] leading-none text-foreground/[0.02] pointer-events-none select-none">06</div>
       <div className="container mx-auto px-6 text-center">
         <ScrollReveal>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground mb-6">
+            SECTOR_06 / CONTACT
+          </p>
           <h2 className="font-display text-5xl sm:text-7xl md:text-8xl text-foreground tracking-wider mb-8 glitch-text" data-text="LET'S BUILD SOMETHING.">
             LET'S BUILD
             <br />
-            <span className="text-primary text-glow-lime">SOMETHING.</span>
+            <span className="text-primary text-glow-lando">SOMETHING.</span>
           </h2>
         </ScrollReveal>
 
