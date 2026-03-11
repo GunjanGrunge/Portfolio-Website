@@ -9,7 +9,7 @@ const socials = [
 
 const ContactSection = () => {
   const [copied, setCopied] = useState(false);
-  const email = "gunjan.sarkar@example.com";
+  const email = "gunjan37@hotmail.com";
 
   const copyEmail = () => {
     navigator.clipboard.writeText(email).then(() => {
@@ -19,7 +19,7 @@ const ContactSection = () => {
   };
 
   return (
-    <section id="contact" className="py-32 relative">
+    <section id="contact" className="py-32 relative" style={{ backgroundColor: '#03040f' }}>
       {/* Watermark */}
       <div className="absolute top-0 left-0 font-display text-[16rem] leading-none text-foreground/[0.02] pointer-events-none select-none">06</div>
       <div className="container mx-auto px-6 text-center">

@@ -468,22 +468,63 @@ const CSCard = () => {
    HOBBIES SECTION WRAPPER
    ═══════════════════════════════════════════ */
 
+const CARD_COUNT = 4;
+
 const HobbiesSection = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [hasScrolled, setHasScrolled] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [currentCard, setCurrentCard] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [hasPeeked, setHasPeeked] = useState(false);
 
+  // Track scroll position for progress bar and current card
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const onScroll = () => {
-      if (el.scrollLeft > 20) setHasScrolled(true);
+      if (!hasInteracted && el.scrollLeft > 20) setHasInteracted(true);
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (maxScroll > 0) {
+        const pct = el.scrollLeft / maxScroll;
+        setProgress(pct);
+        setCurrentCard(Math.round(pct * (CARD_COUNT - 1)));
+      }
     };
     el.addEventListener("scroll", onScroll);
     return () => el.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [hasInteracted]);
+
+  // First-visit peek animation
+  useEffect(() => {
+    if (hasPeeked) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && scrollRef.current) {
+          setHasPeeked(true);
+          const el = scrollRef.current;
+          setTimeout(() => {
+            el.scrollTo({ left: 80, behavior: "smooth" });
+            setTimeout(() => el.scrollTo({ left: 0, behavior: "smooth" }), 500);
+          }, 300);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [hasPeeked]);
+
+  const scrollToCard = (dir: "prev" | "next") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setHasInteracted(true);
+    const cardWidth = el.clientWidth;
+    el.scrollBy({ left: dir === "next" ? cardWidth : -cardWidth, behavior: "smooth" });
+  };
 
   return (
-    <section id="offcode" className="py-24 relative">
+    <section id="offcode" className="py-24 relative" ref={sectionRef}>
       {/* Section header */}
       <div className="container mx-auto px-6 mb-12">
         <ScrollReveal>
@@ -502,28 +543,100 @@ const HobbiesSection = () => {
         {/* Dashed connecting line */}
         <div className="absolute top-1/2 left-0 right-0 h-px border-t border-dashed border-primary/20 z-10 pointer-events-none" />
 
-        {/* Scroll arrows */}
-        {!hasScrolled && (
-          <div className="absolute inset-y-0 right-4 flex items-center z-20 pointer-events-none">
-            <motion.div
-              animate={{ x: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="font-mono text-primary text-2xl"
+        {/* LEFT ARROW */}
+        {currentCard > 0 && (
+          <button
+            onClick={() => scrollToCard("prev")}
+            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 items-center justify-center border border-primary/60 text-primary bg-background/80 backdrop-blur-sm hover:glow-lando transition-all"
+            style={{ animation: "arrow-pulse 2s ease-in-out infinite" }}
+          >
+            <span className="font-display text-2xl">‹</span>
+          </button>
+        )}
+
+        {/* RIGHT ARROW */}
+        {currentCard < CARD_COUNT - 1 && (
+          <button
+            onClick={() => scrollToCard("next")}
+            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 items-center justify-center border border-primary/60 text-primary bg-background/80 backdrop-blur-sm hover:glow-lando transition-all"
+            style={{ animation: "arrow-pulse 2s ease-in-out infinite" }}
+          >
+            <span className="font-display text-2xl">›</span>
+          </button>
+        )}
+
+        {/* DRAG HINT PILL */}
+        {!hasInteracted && (
+          <motion.div
+            className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-30 items-center gap-2 px-4 py-2 border border-primary rounded-full bg-background/80 backdrop-blur-sm"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <motion.span
+              className="font-mono text-primary text-xs"
+              animate={{ x: [-6, 6, -6] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              ←
+            </motion.span>
+            <span className="font-mono text-[10px] tracking-[0.2em] text-primary">DRAG TO EXPLORE</span>
+            <motion.span
+              className="font-mono text-primary text-xs"
+              animate={{ x: [6, -6, 6] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
             >
               →
-            </motion.div>
-          </div>
+            </motion.span>
+          </motion.div>
         )}
 
         {/* Desktop: horizontal scroll */}
         <div
           ref={scrollRef}
           className="hidden md:flex hobby-scroll overflow-x-auto overflow-y-hidden"
+          style={{ cursor: "grab" }}
+          onMouseDown={(e) => {
+            const el = scrollRef.current;
+            if (!el) return;
+            el.style.cursor = "grabbing";
+            const startX = e.pageX - el.offsetLeft;
+            const scrollLeft = el.scrollLeft;
+            const onMove = (ev: MouseEvent) => {
+              const x = ev.pageX - el.offsetLeft;
+              el.scrollLeft = scrollLeft - (x - startX);
+            };
+            const onUp = () => {
+              el.style.cursor = "grab";
+              document.removeEventListener("mousemove", onMove);
+              document.removeEventListener("mouseup", onUp);
+            };
+            document.addEventListener("mousemove", onMove);
+            document.addEventListener("mouseup", onUp);
+          }}
         >
           <F1Card />
           <MotoGPCard />
           <MusicCard />
           <CSCard />
+        </div>
+
+        {/* Progress bar */}
+        <div className="hidden md:block relative mx-auto mt-4 max-w-md">
+          <div className="h-[2px] bg-muted rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-primary"
+              style={{ width: `${Math.max(progress * 100, 2)}%` }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            />
+          </div>
+          <div className="flex justify-between mt-1">
+            <span className="font-mono text-[9px] text-primary/60 tracking-widest">
+              {String(currentCard + 1).padStart(2, "0")}/{String(CARD_COUNT).padStart(2, "0")}
+            </span>
+            <span className="font-mono text-[9px] text-muted-foreground tracking-widest">PROGRESS</span>
+          </div>
         </div>
 
         {/* Mobile: vertical stack */}
