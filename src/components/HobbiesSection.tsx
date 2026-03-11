@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ScrollReveal } from "./ScrollReveal";
 
@@ -477,174 +477,298 @@ const HobbiesSection = () => {
   const [currentCard, setCurrentCard] = useState(0);
   const [progress, setProgress] = useState(0);
   const [hasPeeked, setHasPeeked] = useState(false);
+  const [isTrapped, setIsTrapped] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragScrollLeft = useRef(0);
 
-  // Track scroll position for progress bar and current card
+  // Compute current card from scroll position
+  const updateCardFromScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    if (maxScroll > 0) {
+      const pct = el.scrollLeft / maxScroll;
+      setProgress(pct);
+      const card = Math.round(pct * (CARD_COUNT - 1));
+      setCurrentCard(card);
+      return card;
+    }
+    return 0;
+  }, []);
+
+  // Track scroll position
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const onScroll = () => {
       if (!hasInteracted && el.scrollLeft > 20) setHasInteracted(true);
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      if (maxScroll > 0) {
-        const pct = el.scrollLeft / maxScroll;
-        setProgress(pct);
-        setCurrentCard(Math.round(pct * (CARD_COUNT - 1)));
-      }
+      updateCardFromScroll();
     };
     el.addEventListener("scroll", onScroll);
     return () => el.removeEventListener("scroll", onScroll);
-  }, [hasInteracted]);
+  }, [hasInteracted, updateCardFromScroll]);
 
-  // First-visit peek animation
+  // Intersection observer for visibility + peek + scroll trap
   useEffect(() => {
-    if (hasPeeked) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && scrollRef.current) {
-          setHasPeeked(true);
-          const el = scrollRef.current;
-          setTimeout(() => {
-            el.scrollTo({ left: 80, behavior: "smooth" });
-            setTimeout(() => el.scrollTo({ left: 0, behavior: "smooth" }), 500);
-          }, 300);
+        const visible = entry.isIntersecting && entry.intersectionRatio > 0.4;
+        setIsInView(visible);
+        if (visible) {
+          setIsTrapped(true);
+          // Peek animation on first visit
+          if (!hasPeeked && scrollRef.current) {
+            setHasPeeked(true);
+            const el = scrollRef.current;
+            setTimeout(() => {
+              el.scrollTo({ left: 80, behavior: "smooth" });
+              setTimeout(() => el.scrollTo({ left: 0, behavior: "smooth" }), 500);
+            }, 300);
+          }
         }
       },
-      { threshold: 0.3 }
+      { threshold: [0.4, 0.5] }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, [hasPeeked]);
 
+  // Update trap state based on current card
+  useEffect(() => {
+    if (currentCard >= CARD_COUNT - 1) {
+      setIsTrapped(false);
+    } else if (isInView) {
+      setIsTrapped(true);
+    }
+  }, [currentCard, isInView]);
+
+  // Scroll trap: intercept vertical wheel events and convert to horizontal card nav
+  useEffect(() => {
+    const section = sectionRef.current;
+    const el = scrollRef.current;
+    if (!section || !el) return;
+
+    const handler = (e: WheelEvent) => {
+      if (!isInView) return;
+      // Only trap if not on the last card (scrolling down) or not on first card (scrolling up)
+      const card = Math.round((el.scrollLeft / (el.scrollWidth - el.clientWidth)) * (CARD_COUNT - 1));
+      
+      if (e.deltaY > 0 && card < CARD_COUNT - 1) {
+        // Scrolling down, not at last card — trap and go next
+        e.preventDefault();
+        const targetCard = Math.min(card + 1, CARD_COUNT - 1);
+        el.scrollTo({ left: targetCard * el.clientWidth, behavior: "smooth" });
+        setHasInteracted(true);
+      } else if (e.deltaY < 0 && card > 0) {
+        // Scrolling up, not at first card — trap and go prev
+        e.preventDefault();
+        const targetCard = Math.max(card - 1, 0);
+        el.scrollTo({ left: targetCard * el.clientWidth, behavior: "smooth" });
+      }
+      // If at last card scrolling down, or first card scrolling up — let it pass through
+    };
+
+    section.addEventListener("wheel", handler, { passive: false });
+    return () => section.removeEventListener("wheel", handler);
+  }, [isInView]);
+
+  // Keyboard arrow keys when section is in view
+  useEffect(() => {
+    if (!isInView) return;
+    const handler = (e: KeyboardEvent) => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const card = Math.round((el.scrollLeft / (el.scrollWidth - el.clientWidth)) * (CARD_COUNT - 1));
+
+      if (e.key === "ArrowRight" && card < CARD_COUNT - 1) {
+        e.preventDefault();
+        el.scrollTo({ left: (card + 1) * el.clientWidth, behavior: "smooth" });
+        setHasInteracted(true);
+      } else if (e.key === "ArrowLeft" && card > 0) {
+        e.preventDefault();
+        el.scrollTo({ left: (card - 1) * el.clientWidth, behavior: "smooth" });
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isInView]);
+
   const scrollToCard = (dir: "prev" | "next") => {
     const el = scrollRef.current;
     if (!el) return;
     setHasInteracted(true);
-    const cardWidth = el.clientWidth;
-    el.scrollBy({ left: dir === "next" ? cardWidth : -cardWidth, behavior: "smooth" });
+    const card = Math.round((el.scrollLeft / (el.scrollWidth - el.clientWidth)) * (CARD_COUNT - 1));
+    const target = dir === "next" ? Math.min(card + 1, CARD_COUNT - 1) : Math.max(card - 1, 0);
+    el.scrollTo({ left: target * el.clientWidth, behavior: "smooth" });
   };
 
+  // Mouse drag handlers with snap
+  const onMouseDown = (e: React.MouseEvent) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    isDragging.current = true;
+    dragStartX.current = e.pageX;
+    dragScrollLeft.current = el.scrollLeft;
+    el.style.cursor = "grabbing";
+    el.style.scrollSnapType = "none"; // disable snap during drag
+  };
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current || !scrollRef.current) return;
+      const dx = e.pageX - dragStartX.current;
+      scrollRef.current.scrollLeft = dragScrollLeft.current - dx;
+    };
+    const onMouseUp = () => {
+      if (!isDragging.current || !scrollRef.current) return;
+      isDragging.current = false;
+      const el = scrollRef.current;
+      el.style.cursor = "grab";
+      // Snap to nearest card
+      const cardWidth = el.clientWidth;
+      const nearest = Math.round(el.scrollLeft / cardWidth);
+      el.style.scrollSnapType = "x mandatory";
+      el.scrollTo({ left: nearest * cardWidth, behavior: "smooth" });
+      setHasInteracted(true);
+    };
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+  }, []);
+
+  const isOnLastCard = currentCard >= CARD_COUNT - 1;
+
   return (
-    <section id="offcode" className="py-24 relative" ref={sectionRef}>
-      {/* Section header */}
-      <div className="container mx-auto px-6 mb-12">
-        <ScrollReveal>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="font-mono text-primary text-sm">{">"}</span>
-            <h2 className="font-display text-5xl sm:text-7xl text-foreground tracking-wide">BEYOND THE CODE</h2>
-          </div>
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground">
-            THE PERSON BEHIND THE PORTFOLIO
-          </p>
-        </ScrollReveal>
-      </div>
-
-      {/* Horizontal scroll container */}
-      <div className="relative">
-        {/* Dashed connecting line */}
-        <div className="absolute top-1/2 left-0 right-0 h-px border-t border-dashed border-primary/20 z-10 pointer-events-none" />
-
-        {/* LEFT ARROW */}
-        {currentCard > 0 && (
-          <button
-            onClick={() => scrollToCard("prev")}
-            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 items-center justify-center border border-primary/60 text-primary bg-background/80 backdrop-blur-sm hover:glow-lando transition-all"
-            style={{ animation: "arrow-pulse 2s ease-in-out infinite" }}
-          >
-            <span className="font-display text-2xl">‹</span>
-          </button>
-        )}
-
-        {/* RIGHT ARROW */}
-        {currentCard < CARD_COUNT - 1 && (
-          <button
-            onClick={() => scrollToCard("next")}
-            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 items-center justify-center border border-primary/60 text-primary bg-background/80 backdrop-blur-sm hover:glow-lando transition-all"
-            style={{ animation: "arrow-pulse 2s ease-in-out infinite" }}
-          >
-            <span className="font-display text-2xl">›</span>
-          </button>
-        )}
-
-        {/* DRAG HINT PILL */}
-        {!hasInteracted && (
-          <motion.div
-            className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-30 items-center gap-2 px-4 py-2 border border-primary rounded-full bg-background/80 backdrop-blur-sm"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <motion.span
-              className="font-mono text-primary text-xs"
-              animate={{ x: [-6, 6, -6] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              ←
-            </motion.span>
-            <span className="font-mono text-[10px] tracking-[0.2em] text-primary">DRAG TO EXPLORE</span>
-            <motion.span
-              className="font-mono text-primary text-xs"
-              animate={{ x: [6, -6, 6] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              →
-            </motion.span>
-          </motion.div>
-        )}
-
-        {/* Desktop: horizontal scroll */}
-        <div
-          ref={scrollRef}
-          className="hidden md:flex hobby-scroll overflow-x-auto overflow-y-hidden"
-          style={{ cursor: "grab" }}
-          onMouseDown={(e) => {
-            const el = scrollRef.current;
-            if (!el) return;
-            el.style.cursor = "grabbing";
-            const startX = e.pageX - el.offsetLeft;
-            const scrollLeft = el.scrollLeft;
-            const onMove = (ev: MouseEvent) => {
-              const x = ev.pageX - el.offsetLeft;
-              el.scrollLeft = scrollLeft - (x - startX);
-            };
-            const onUp = () => {
-              el.style.cursor = "grab";
-              document.removeEventListener("mousemove", onMove);
-              document.removeEventListener("mouseup", onUp);
-            };
-            document.addEventListener("mousemove", onMove);
-            document.addEventListener("mouseup", onUp);
-          }}
-        >
-          <F1Card />
-          <MotoGPCard />
-          <MusicCard />
-          <CSCard />
+    <section
+      id="offcode"
+      className="relative z-20"
+      ref={sectionRef}
+      style={{ backgroundColor: "#03040f" }}
+    >
+      <div className="py-24">
+        {/* Section header */}
+        <div className="container mx-auto px-6 mb-12">
+          <ScrollReveal>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="font-mono text-primary text-sm">{">"}</span>
+              <h2 className="font-display text-5xl sm:text-7xl text-foreground tracking-wide">BEYOND THE CODE</h2>
+            </div>
+            <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground">
+              THE PERSON BEHIND THE PORTFOLIO
+            </p>
+          </ScrollReveal>
         </div>
 
-        {/* Progress bar */}
-        <div className="hidden md:block relative mx-auto mt-4 max-w-md">
-          <div className="h-[2px] bg-muted rounded-full overflow-hidden">
+        {/* Horizontal scroll container */}
+        <div className="relative">
+          {/* Dashed connecting line */}
+          <div className="absolute top-1/2 left-0 right-0 h-px border-t border-dashed border-primary/20 z-10 pointer-events-none" />
+
+          {/* LEFT ARROW */}
+          {currentCard > 0 && (
+            <button
+              onClick={() => scrollToCard("prev")}
+              className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 items-center justify-center border border-primary/60 text-primary bg-background/80 backdrop-blur-sm hover:glow-lando transition-all"
+              style={{ animation: "arrow-pulse 2s ease-in-out infinite" }}
+            >
+              <span className="font-display text-2xl">‹</span>
+            </button>
+          )}
+
+          {/* RIGHT ARROW */}
+          {currentCard < CARD_COUNT - 1 && (
+            <button
+              onClick={() => scrollToCard("next")}
+              className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 items-center justify-center border border-primary/60 text-primary bg-background/80 backdrop-blur-sm hover:glow-lando transition-all"
+              style={{ animation: "arrow-pulse 2s ease-in-out infinite" }}
+            >
+              <span className="font-display text-2xl">›</span>
+            </button>
+          )}
+
+          {/* DRAG HINT PILL */}
+          {!hasInteracted && (
             <motion.div
-              className="h-full bg-primary"
-              style={{ width: `${Math.max(progress * 100, 2)}%` }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-          </div>
-          <div className="flex justify-between mt-1">
-            <span className="font-mono text-[9px] text-primary/60 tracking-widest">
-              {String(currentCard + 1).padStart(2, "0")}/{String(CARD_COUNT).padStart(2, "0")}
-            </span>
-            <span className="font-mono text-[9px] text-muted-foreground tracking-widest">PROGRESS</span>
-          </div>
-        </div>
+              className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-30 items-center gap-2 px-4 py-2 border border-primary rounded-full bg-background/80 backdrop-blur-sm"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <motion.span
+                className="font-mono text-primary text-xs"
+                animate={{ x: [-6, 6, -6] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              >
+                ←
+              </motion.span>
+              <span className="font-mono text-[10px] tracking-[0.2em] text-primary">DRAG TO EXPLORE</span>
+              <motion.span
+                className="font-mono text-primary text-xs"
+                animate={{ x: [6, -6, 6] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              >
+                →
+              </motion.span>
+            </motion.div>
+          )}
 
-        {/* Mobile: vertical stack */}
-        <div className="md:hidden space-y-4 px-4">
-          <div className="rounded overflow-hidden"><F1Card /></div>
-          <div className="rounded overflow-hidden"><MotoGPCard /></div>
-          <div className="rounded overflow-hidden"><MusicCard /></div>
-          <div className="rounded overflow-hidden"><CSCard /></div>
+          {/* "Scroll to continue" cue on last card */}
+          {isOnLastCard && (
+            <motion.div
+              className="hidden md:block absolute bottom-4 left-1/2 -translate-x-1/2 z-30"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <span className="font-mono text-[10px] tracking-[0.2em] text-primary">
+                ↓ SCROLL TO CONTINUE
+              </span>
+            </motion.div>
+          )}
+
+          {/* Desktop: horizontal scroll */}
+          <div
+            ref={scrollRef}
+            className="hidden md:flex hobby-scroll overflow-x-auto overflow-y-hidden"
+            style={{ cursor: "grab" }}
+            onMouseDown={onMouseDown}
+          >
+            <F1Card />
+            <MotoGPCard />
+            <MusicCard />
+            <CSCard />
+          </div>
+
+          {/* Progress bar */}
+          <div className="hidden md:block relative mx-auto mt-4 max-w-md px-6">
+            <div className="h-[2px] bg-muted rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-primary"
+                style={{ width: `${Math.max(progress * 100, 2)}%` }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              />
+            </div>
+            <div className="flex justify-between mt-1">
+              <span className="font-mono text-[9px] text-primary/60 tracking-widest">
+                {String(currentCard + 1).padStart(2, "0")}/{String(CARD_COUNT).padStart(2, "0")}
+              </span>
+              <span className="font-mono text-[9px] text-muted-foreground tracking-widest">PROGRESS</span>
+            </div>
+          </div>
+
+          {/* Mobile: vertical stack */}
+          <div className="md:hidden space-y-4 px-4">
+            <div className="rounded overflow-hidden"><F1Card /></div>
+            <div className="rounded overflow-hidden"><MotoGPCard /></div>
+            <div className="rounded overflow-hidden"><MusicCard /></div>
+            <div className="rounded overflow-hidden"><CSCard /></div>
+          </div>
         </div>
       </div>
     </section>
