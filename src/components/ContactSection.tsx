@@ -9,7 +9,7 @@ const socials = [
 
 const ContactSection = () => {
   const [copied, setCopied] = useState(false);
-  const email = "gunjan.sarkar@example.com";
+  const email = "gunjan37@hotmail.com";
 
   const copyEmail = () => {
     navigator.clipboard.writeText(email).then(() => {
