@@ -5,8 +5,8 @@ import { Github, ExternalLink } from "lucide-react";
 const projects = [
   {
     title: "CLOUD COPILOT",
-    desc: "Intelligent AWS assistant using multi-agent architecture with GPT-4 and AWS Bedrock for smart resource management.",
-    tags: ["Python", "TypeScript", "FastAPI", "React", "AWS Bedrock", "GPT-4"],
+    desc: "Intelligent AWS assistant using multi-agent architecture with AWS Bedrock for smart resource management.",
+    tags: ["Python", "TypeScript", "FastAPI", "React", "AWS Bedrock"],
     github: "https://github.com/GunjanGrunge",
     featured: true,
   },
@@ -26,15 +26,15 @@ const projects = [
   },
   {
     title: "AI TWITTER BOT",
-    desc: "Automated content generation using GPT-4 with dual daily sessions and smart duplicate prevention.",
-    tags: ["Node.js", "GPT-4", "Twitter API v2", "GitHub Actions"],
+    desc: "Automated content generation using LLMs with dual daily sessions and smart duplicate prevention.",
+    tags: ["Node.js", "LLM", "Twitter API v2", "GitHub Actions"],
     github: "https://github.com/GunjanGrunge",
-    featured: true,
+    featured: false,
   },
   {
     title: "SMART TASK MANAGER",
     desc: "Full-stack task management with AI-powered priority suggestions and real-time collaboration.",
-    tags: ["React", "Node.js", "MongoDB", "Socket.io", "OpenAI"],
+    tags: ["React", "Node.js", "MongoDB", "Socket.io", "LLM"],
     github: "https://github.com/GunjanGrunge",
     featured: false,
   },
@@ -61,87 +61,111 @@ const projects = [
   },
 ];
 
-const ProjectCard = ({ project, index }: { project: typeof projects[0]; index: number }) => {
-  return (
-    <motion.div
-      whileHover={{ y: -8 }}
-      transition={{ duration: 0.2 }}
-      className={`group relative bg-card border border-border hover:border-primary/50 transition-all duration-300 overflow-hidden hover:glow-lime ${
-        project.featured ? "md:col-span-2 md:row-span-1" : ""
-      }`}
-    >
-      {/* Lime top border */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-primary" />
+const featuredProject = projects.find((p) => p.featured)!;
+const otherProjects = projects.filter((p) => !p.featured);
 
-      <div className="p-6 sm:p-8">
-        <div className="flex items-start justify-between mb-4">
-          <h3 className="font-display text-2xl sm:text-3xl text-foreground tracking-wider group-hover:text-primary transition-colors glitch-text" data-text={project.title}>
-            {project.title}
-          </h3>
-          <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-              aria-label="GitHub"
-            >
-              <Github size={18} />
-            </a>
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-              aria-label="Live demo"
-            >
-              <ExternalLink size={18} />
-            </a>
-          </div>
-        </div>
-
-        <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6">
-          {project.desc}
-        </p>
-
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="font-mono text-[10px] tracking-wider px-3 py-1 border border-border text-muted-foreground"
-            >
-              {tag}
-            </span>
-          ))}
+const ProjectCard = ({ project }: { project: typeof projects[0] }) => (
+  <motion.div
+    whileHover={{ y: -6 }}
+    transition={{ duration: 0.2 }}
+    className="group relative bg-card border border-border hover:border-primary/50 transition-all duration-300 overflow-hidden flex flex-col"
+    style={{ minHeight: 220 }}
+  >
+    <div className="absolute top-0 left-0 right-0 h-px bg-primary" />
+    <div className="p-6 flex flex-col flex-1">
+      <div className="flex items-start justify-between mb-4">
+        <h3 className="font-display text-xl text-foreground tracking-wider group-hover:text-primary transition-colors glitch-text" data-text={project.title}>
+          {project.title}
+        </h3>
+        <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+          <a href={project.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="GitHub">
+            <Github size={16} />
+          </a>
+          <a href={project.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Live demo">
+            <ExternalLink size={16} />
+          </a>
         </div>
       </div>
-    </motion.div>
-  );
-};
+      <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
+        {project.desc}
+      </p>
+      <div className="flex flex-wrap gap-2 mt-auto">
+        {project.tags.map((tag) => (
+          <span key={tag} className="font-mono text-[10px] tracking-wider px-3 py-1 border border-border text-muted-foreground">
+            {tag}
+          </span>
+        ))}
+      </div>
+    </div>
+  </motion.div>
+);
 
 const ProjectsSection = () => {
   return (
     <section id="projects" className="py-24 relative">
-      {/* Watermark */}
       <div className="absolute top-0 right-0 font-display text-[16rem] leading-none text-foreground/[0.02] pointer-events-none select-none">03</div>
       <div className="container mx-auto px-6">
         <ScrollReveal>
           <div className="flex items-center gap-3 mb-4">
             <span className="font-mono text-primary text-sm">{">"}</span>
-            <h2 className="font-display text-4xl sm:text-5xl text-foreground tracking-wide">
-              SELECTED WORK
-            </h2>
+            <h2 className="font-display text-4xl sm:text-5xl text-foreground tracking-wide">SELECTED WORK</h2>
             <div className="flex-1 h-px bg-border ml-4" />
           </div>
-          <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground mb-16">
-            LAP_03 / PROJECTS
-          </p>
+          <p className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground mb-16">LAP_03 / PROJECTS</p>
         </ScrollReveal>
 
+        {/* Featured project — full width */}
+        <ScrollReveal>
+          <motion.div
+            whileHover={{ y: -6 }}
+            transition={{ duration: 0.2 }}
+            className="group relative bg-card border border-border hover:border-primary/50 transition-all duration-300 overflow-hidden mb-4"
+            style={{
+              minHeight: 180,
+              boxShadow: "0 -2px 20px rgba(210,255,0,0.3)",
+            }}
+          >
+            <div className="absolute top-0 left-0 right-0 h-px bg-primary" />
+            {/* Featured badge */}
+            <span
+              className="absolute top-3 right-3 font-mono text-[9px] uppercase tracking-wider px-2 py-1 z-10"
+              style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}
+            >
+              ★ FEATURED
+            </span>
+            <div className="p-6 sm:p-8 flex flex-col h-full">
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="font-display text-2xl sm:text-3xl text-foreground tracking-wider group-hover:text-primary transition-colors glitch-text" data-text={featuredProject.title}>
+                  {featuredProject.title}
+                </h3>
+                <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+                  <a href={featuredProject.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="GitHub">
+                    <Github size={18} />
+                  </a>
+                  <a href={featuredProject.github} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Live demo">
+                    <ExternalLink size={18} />
+                  </a>
+                </div>
+              </div>
+              <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6 max-w-2xl">
+                {featuredProject.desc}
+              </p>
+              <div className="flex flex-wrap gap-2 mt-auto">
+                {featuredProject.tags.map((tag) => (
+                  <span key={tag} className="font-mono text-[10px] tracking-wider px-3 py-1 border border-border text-muted-foreground">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </ScrollReveal>
+
+        {/* Remaining projects — 3-column grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((project, i) => (
-            <ScrollReveal key={project.title} delay={i * 0.08}>
-              <ProjectCard project={project} index={i} />
+          {otherProjects.map((project, i) => (
+            <ScrollReveal key={project.title} delay={i * 0.06}>
+              <ProjectCard project={project} />
             </ScrollReveal>
           ))}
         </div>
