@@ -5,7 +5,7 @@ const experiences = [
   {
     role: "Technical Lead",
     company: "NOUS Infosystems",
-    period: "2024 — PRESENT",
+    period: "JUL 2024 — MAR 2026",
     bullets: [
       "Led AI-powered PDF analysis system for insurance risk assessment",
       "Implemented LLM-based solution achieving 90% accuracy in risk predictions",
