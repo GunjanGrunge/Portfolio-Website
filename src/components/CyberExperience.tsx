@@ -3,6 +3,18 @@ import { useEffect, useRef, useState } from "react";
 
 const experiences = [
   {
+    role: "Senior Manager",
+    company: "Capgemini",
+    period: "MAR 2026 — PRESENT",
+    bullets: [
+      "Leading demand forecasting initiative using Azure ML, MLOps pipelines, and LLM orchestration to drive supply chain and financial planning decisions",
+      "Architecting machine obsolescence prediction system combining ML models and agentic AI to identify obsolete parts, kits, and machinery in advance",
+      "Obsolescence platform feeds books of accounts, sales forecasting, distribution planning, stock allocation, and capex fund provisioning",
+      "Managing cross-functional delivery across data engineering, ML engineering, and stakeholder alignment",
+    ],
+    tags: ["Azure ML", "MLOps", "LLM Orchestration", "Demand Forecasting", "Agentic AI", "Machine Obsolescence", "Python"],
+  },
+  {
     role: "Technical Lead",
     company: "NOUS Infosystems",
     period: "JUL 2024 — MAR 2026",
@@ -138,7 +150,12 @@ const ExperienceSection = () => {
                       </p>
                     </div>
                     <span className="font-mono text-[10px] tracking-widest text-muted-foreground bg-secondary px-3 py-1 whitespace-nowrap self-start">
-                      {exp.period}
+                      {exp.period.includes("PRESENT") ? (
+                        <>
+                          {exp.period.replace("PRESENT", "")}
+                          <span style={{ color: "#D2FF00", textShadow: "0 0 8px #D2FF00, 0 0 16px rgba(210,255,0,0.5)" }}>PRESENT</span>
+                        </>
+                      ) : exp.period}
                     </span>
                   </div>
 

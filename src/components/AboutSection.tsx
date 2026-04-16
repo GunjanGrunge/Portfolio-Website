@@ -84,8 +84,8 @@ type DossierRow = {
 const onTrack: DossierRow[] = [
   { key: "TEAM", value: <span className="flex items-center gap-2">Open to Work <BlinkingDot /></span> },
   { key: "SEASONS", value: "9+ years exp" },
-  { key: "SPECIALITY", value: "React · Node · AI" },
-  { key: "FASTEST LAP", value: "Cloud Copilot" },
+  { key: "SPECIALITY", value: "Agentic AI · LLM Fine-Tuning · Full Stack" },
+  { key: "FASTEST LAP", value: "Gemma-TIMMY" },
 ];
 
 const offTrack: DossierRow[] = [

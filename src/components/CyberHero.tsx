@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 
 const fullName = "GUNJAN SARKAR";
-const subtitle = "FULL STACK DEVELOPER & AI ENGINEER";
+const subtitle = "AGENTIC AI · LLM FINE-TUNING · FULL STACK ENGINEER";
 
 const CyberHero = () => {
   const [displayedName, setDisplayedName] = useState("");

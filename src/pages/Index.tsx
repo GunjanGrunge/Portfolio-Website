@@ -12,6 +12,7 @@ import ContactSection from "@/components/ContactSection";
 import CyberFooter from "@/components/CyberFooter";
 import HobbiesSection from "@/components/HobbiesSection";
 import SpeedLineTransition from "@/components/SpeedLineTransition";
+import { ResearchPapers } from "@/components/ResearchPapers";
 
 const Index = () => {
   const [activeWorld, setActiveWorld] = useState<"oncode" | "offcode">("oncode");
@@ -41,6 +42,8 @@ const Index = () => {
             <CyberProjects />
             <SpeedLineTransition />
             <CyberExperience />
+            <SpeedLineTransition />
+            <ResearchPapers />
             <SpeedLineTransition />
             <CyberEducation />
             <SpeedLineTransition />

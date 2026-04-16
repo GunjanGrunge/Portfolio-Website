@@ -11,6 +11,7 @@ const onCodeLinks = [
   { label: "SKILLS", href: "#skills" },
   { label: "WORK", href: "#projects" },
   { label: "EXPERIENCE", href: "#experience" },
+  { label: "RESEARCH", href: "#research" },
   { label: "EDUCATION", href: "#education" },
   { label: "CONTACT", href: "#contact" },
 ];
@@ -135,7 +136,7 @@ const CyberNav = ({ activeWorld, onWorldChange }: CyberNavProps) => {
           <div className="hidden md:flex items-center gap-2 px-4 flex-shrink-0">
             <span className="w-2 h-2 rounded-full bg-primary pulse-dot flex-shrink-0" />
             <span className="font-mono text-[10px] tracking-widest text-muted-foreground whitespace-nowrap">
-              <span className="text-primary font-bold">#1</span> / FULL STACK DEV
+              <span className="text-primary font-bold">#1</span> / AGENTIC AI / FULL STACK
             </span>
           </div>
 
@@ -218,7 +219,7 @@ const CyberNav = ({ activeWorld, onWorldChange }: CyberNavProps) => {
             <div className="flex items-center gap-2 mt-auto mb-8">
               <span className="w-2 h-2 rounded-full bg-primary pulse-dot" />
               <span className="font-mono text-[10px] tracking-widest text-muted-foreground">
-                <span className="text-primary font-bold">#1</span> / FULL STACK DEV · OPEN TO WORK
+                <span className="text-primary font-bold">#1</span> / AGENTIC AI / FULL STACK · OPEN TO WORK
               </span>
             </div>
           </motion.div>
